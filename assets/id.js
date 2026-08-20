@@ -1,3 +1,12 @@
+const localImage = sessionStorage.getItem("localImage");
+
+if (localImage) {
+    const image = document.querySelector(".upload_uploaded");
+
+    if (image) {
+        image.src = localImage;
+    }
+}
 
 var params = new URLSearchParams(window.location.search);
 
