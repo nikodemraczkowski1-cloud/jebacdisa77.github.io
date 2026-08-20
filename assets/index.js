@@ -45,35 +45,33 @@ upload.addEventListener('click', () => {
 
 imageInput.addEventListener('change', (event) => {
 
-    upload.classList.remove("upload_loaded");
-    upload.classList.add("upload_loading");
-
-    upload.removeAttribute("selected")
-
     var file = imageInput.files[0];
-    var data = new FormData();
-    data.append("image", file);
 
-    fetch('	https://api.imgur.com/3/image' ,{
-        method: 'POST',
-        headers: {
-            'Authorization': 'Client-ID dcff9593902d0bb'
-        },
-        body: data
-    })
-    .then(result => result.json())
-    .then(response => {
-        
-        var url = response.data.link;
-        upload.classList.remove("error_shown")
-        upload.setAttribute("selected", url);
+    if (!file) {
+        return;
+    }
+
+    upload.classList.remove("upload_loading");
+    upload.classList.remove("error_shown");
+
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        // Zapisujemy zdjęcie lokalnie w przeglądarce
+        sessionStorage.setItem("localImage", e.target.result);
+
+        // Informujemy formularz, że zdjęcie zostało wybrane
+        upload.setAttribute("selected", "local");
+
+        // Pokazujemy podgląd
+        upload.querySelector(".upload_uploaded").src = e.target.result;
+
         upload.classList.add("upload_loaded");
-        upload.classList.remove("upload_loading");
-        upload.querySelector(".upload_uploaded").src = url;
+    };
 
-    })
-
-})
+    reader.readAsDataURL(file);
+});
 
 document.querySelector(".go").addEventListener('click', () => {
 
@@ -82,11 +80,11 @@ document.querySelector(".go").addEventListener('click', () => {
     var params = new URLSearchParams();
 
     params.set("sex", sex)
-    if (!upload.hasAttribute("selected")){
+    if (!upload.hasAttribute("selected")) {
         empty.push(upload);
-        upload.classList.add("error_shown")
-    }else{
-        params.set("image", upload.getAttribute("selected"))
+        upload.classList.add("error_shown");
+    } else {
+        params.set("image", "local");
     }
 
     var birthday = "";
